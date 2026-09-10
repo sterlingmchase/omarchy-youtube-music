@@ -1,0 +1,12 @@
+*.qmlc
+*.jsc
+.cache/
+__pycache__/
+*.py[cod]
+*.log
+.env
+.env.*
+auth.json
+youtube-cookies.txt
+queue.json
+playing.json

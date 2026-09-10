@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "sterling.youtube-music",
+  "name": "YouTube Music",
+  "version": "0.3.3",
+  "author": "Sterling",
+  "license": "MIT",
+  "description": "A keyring-authenticated YouTube Music search, library, playback, and media-control panel for the Omarchy bar.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "YouTube Music",
+    "description": "Search songs, albums, and artists, browse playlists, and play music without a persistent browser window.",
+    "category": "Media",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
