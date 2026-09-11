@@ -29,7 +29,7 @@ your configured keyring; the plugin does not itself verify encryption at rest.
 The authentication browser uses a loopback debugging endpoint, which other
 processes running locally may access while that browser remains open.
 
-Version 0.3.3 reduces background polling, avoids keyring reads during playback
+Version 0.4.0 reduces background polling, avoids keyring reads during playback
 updates, reports control errors, adds a bounded scrolling result list, checks
 cookie-domain boundaries, improves first-play queue loading, and fixes repeat
 state handling. Regression tests use synthetic data, not live account
@@ -42,6 +42,12 @@ credentials.
 - Secret Service (`secret-tool`)
 - mpv and yt-dlp
 - Python 3 with requests
+
+On Omarchy, install the runtime dependencies with:
+
+```bash
+omarchy pkg add chromium libsecret mpv yt-dlp python-requests
+```
 
 The isolated browser profile lives under
 `~/.local/share/sterling.youtube-music/chromium-profile`. The reusable session
@@ -60,6 +66,21 @@ You can move it later with:
 ```bash
 omarchy bar move sterling.youtube-music --section right
 ```
+
+## Remove
+
+Use **Forget login** in the panel first. That stops the private player and
+removes the plugin's keyring session, temporary cookie file, and queues. Then
+remove the plugin:
+
+```bash
+omarchy plugin remove sterling.youtube-music
+```
+
+The isolated Chromium profile under
+`~/.local/share/sterling.youtube-music/chromium-profile` is deliberately kept
+so removing the plugin does not silently delete browser data. Delete that
+directory yourself only if you also want to remove the dedicated browser login.
 
 ## Controls
 
@@ -80,8 +101,15 @@ saved. Repeat these steps only when Google expires the session.
 
 ```bash
 omarchy plugin validate .
-qmllint -I "$OMARCHY_PATH/shell" Panel.qml
+qmllint -I "$OMARCHY_PATH/shell" BarWidget.qml Panel.qml
+python3 -m unittest discover -s tests -v
 ```
+
+## Support and security
+
+This plugin uses YouTube Music's private web API, which can change without
+notice. Please report bugs through the repository issue tracker. For security
+issues, follow [SECURITY.md](SECURITY.md).
 
 ## License
 

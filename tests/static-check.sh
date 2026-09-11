@@ -3,9 +3,16 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-jq -e '.id == "sterling.youtube-music" and .barWidget.defaultSection == "right"' \
+jq -e '.id == "sterling.youtube-music" and .barWidget.defaultSection == "right" and .entryPoints.barWidget == "BarWidget.qml"' \
   "$repo_dir/manifest.json" >/dev/null
 
+test -f "$repo_dir/BarWidget.qml"
+test -f "$repo_dir/README.md"
+test -f "$repo_dir/LICENSE"
+test -f "$repo_dir/SECURITY.md"
+test -z "$(find "$repo_dir" -type l -print -quit)"
+
+rg -q 'source: Qt.resolvedUrl\("Panel.qml"\)' "$repo_dir/BarWidget.qml"
 rg -q 'browser_bridge.py' "$repo_dir/Panel.qml"
 rg -q 'backend.py' "$repo_dir/Panel.qml"
 rg -q 'youtube_window_exists' "$repo_dir/scripts/browser_bridge.py"

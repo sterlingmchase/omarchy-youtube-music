@@ -12,6 +12,9 @@ Panel {
   ipcTarget: "sterling.youtube-music"
   manageIpc: false
 
+  property var anchorItem: null
+  property var hostWidget: null
+
   readonly property string pluginPath: Quickshell.env("HOME") + "/.config/omarchy/plugins/sterling.youtube-music"
   readonly property string bridgePath: root.pluginPath + "/scripts/browser_bridge.py"
   readonly property string backendPath: root.pluginPath + "/scripts/backend.py"
@@ -45,9 +48,6 @@ Panel {
   readonly property color subtleFill: Style.normalFillFor(contentForeground, Color.accent)
   readonly property color subtleBorder: Style.normalBorderFor(contentForeground, Color.accent)
   readonly property string contentFontFamily: bar ? bar.fontFamily : Style.font.family
-
-  implicitWidth: button.implicitWidth
-  implicitHeight: button.implicitHeight
 
   function openSignIn() {
     if (actionProc.running) return
@@ -123,6 +123,14 @@ Panel {
     if (!seconds || seconds <= 0) return "0:00"
     var total = Math.floor(seconds), minutes = Math.floor(total / 60), remainder = total % 60
     return minutes + ":" + (remainder < 10 ? "0" : "") + remainder
+  }
+  function connectionStatus() {
+    return JSON.stringify({
+      connected: root.connected,
+      reconnecting: root.reconnecting,
+      busy: actionProc.running,
+      error: root.resultError
+    })
   }
 
   onOpenedChanged: if (opened) { root.refreshStatus(true); Qt.callLater(function() { keyCatcher.forceActiveFocus() }) }
@@ -206,33 +214,8 @@ Panel {
     font.pixelSize: Style.font.caption; elide: Text.ElideRight; elideWidth: Style.space(190)
   }
 
-  IpcHandler {
-    target: root.ipcTarget
-    function open(): void { root.open() }
-    function close(): void { root.close() }
-    function toggle(): void { root.toggle() }
-    function playPause(): string { root.runControl("toggle"); return root.active ? "ok" : "idle" }
-    function next(): string { root.runControl("next"); return root.active ? "ok" : "idle" }
-    function previous(): string { root.runControl("previous"); return root.active ? "ok" : "idle" }
-    function launch(): string { root.openSignIn(); return "ok" }
-    function playlists(): string { root.runResults("library", "", "Your playlists"); return "ok" }
-    function status(): string { return root.active ? root.trackTitle : "idle" }
-    function connectionStatus(): string { return JSON.stringify({ connected: root.connected, reconnecting: root.reconnecting, busy: actionProc.running, error: root.resultError }) }
-  }
-
-  BarIconButton {
-    id: button; anchors.fill: parent; bar: root.bar; text: root.barText; labelVisible: true
-    fixedWidth: -1; fontSize: Style.font.caption; active: root.playing; useActiveColor: true
-    foreground: root.barForeground; tooltipText: root.active ? root.trackTitle : "YouTube Music"
-    onPressed: function(buttonCode) {
-      if (buttonCode === Qt.MiddleButton && root.active) root.runControl("toggle")
-      else if (buttonCode === Qt.RightButton && root.active) root.runControl("next")
-      else if (buttonCode === Qt.LeftButton) root.toggle()
-    }
-  }
-
   KeyboardPanel {
-    id: panel; anchorItem: button; owner: root; bar: root.bar; open: root.opened
+    id: panel; anchorItem: root.anchorItem; owner: root.hostWidget || root; bar: root.bar; open: root.opened
     centerOnBar: true; focusTarget: keyCatcher
     contentWidth: panel.fittedContentWidth(Style.space(380))
     contentHeight: panel.fittedContentHeight(contentColumn.implicitHeight, Style.space(560))
